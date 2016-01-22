@@ -17,7 +17,9 @@ aws_secret_access_key = MY-SECRET-KEY
 Supply the queue source and destination names as parameters as follows
 
 ```
-sqsmover -source=mysourcequeuename -dest=mydestinationqueuename
+sqsmover -source=my_source_queue_name -dest=my_destination_queuename
 ```
+
+
 
 

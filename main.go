@@ -63,7 +63,7 @@ func main() {
 		resp, err := svc.ReceiveMessage(params)
 
 		if len(resp.Messages) == 0 {
-			fmt.Println("Received 0, transfer complete")
+			fmt.Println("Batch doesn't have any messages, transfer complete")
 			return
 		}
 
