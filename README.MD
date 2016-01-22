@@ -1,4 +1,4 @@
-# SQS Deadletter Queue Mover
+# SQS Message Mover
 A simple and rough application that moves messages from one AWS SQS queue to 
 another. Useful when you need to move deadletter queue messages back into the 
 source queue. It hasn't been thoroughly tested, please use at your own risk or modify
@@ -6,7 +6,9 @@ as needed.
 
 
 ## Installing
+```
 go get -u github.com/mercury2269/sqsmover/...
+```
 
 ## Configuring Credentials
 Before using the sqsmover ensure that you've configured credentials. The best
