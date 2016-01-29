@@ -6,6 +6,11 @@ as needed.
 
 
 ## Installing
+
+Download and intall Go https://golang.org/dl/
+
+Install binary with dependencies using the following command:
+
 ```
 go get -u github.com/mercury2269/sqsmover/...
 ```
