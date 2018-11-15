@@ -1,12 +1,21 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
+
+var (
+	// app              = kingpin.New("sqsmover", "A command line application that moves messages between AWS SQS queues")
+	sourceQueue      = kingpin.Flag("source", "Source queue to move messages from").Short('s').Required().String()
+	destinationQueue = kingpin.Flag("destination", "Destination queue to move messages to").Short('d').Required().String()
+	region			= kingpin.Flag("region", "AWS Region for source and destination queues").Short('r').Default("us-west-2").String()
+)
+
+
 
 func resolveQueueUrl(queueName string, svc *sqs.SQS) (error, string) {
 	params := &sqs.GetQueueUrlInput{
@@ -25,27 +34,19 @@ func resolveQueueUrl(queueName string, svc *sqs.SQS) (error, string) {
 }
 
 func main() {
+	kingpin.UsageTemplate(kingpin.CompactUsageTemplate)
 
-	var (
-		sourceQueueName = flag.String("source", "", "Source queue name")
-		destQueueName   = flag.String("dest", "", "Destination queue name")
-		region   = flag.String("region", "us-west-2", "AWS region")
-	)
+	kingpin.Parse()
 
-	flag.Parse()
-
-	// Create an EC2 service object in the "us-west-2" region
-	// Note that you can also configure your region globally by
-	// exporting the AWS_REGION environment variable
 	svc := sqs.New(session.New(), aws.NewConfig().WithRegion(*region))
 
-	err, sourceUrl := resolveQueueUrl(*sourceQueueName, svc)
+	err, sourceUrl := resolveQueueUrl(*sourceQueue, svc)
 
 	if err != nil {
 		return
 	}
 
-	err, destUrl := resolveQueueUrl(*destQueueName, svc)
+	err, destUrl := resolveQueueUrl(*destinationQueue, svc)
 
 	if err != nil {
 		return
