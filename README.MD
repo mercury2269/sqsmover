@@ -5,15 +5,22 @@ source queue. It hasn't been thoroughly tested, please **use at your own risk** 
 as needed. 
 
 
-## Installing
+## Installation
 
-Download and intall Go https://golang.org/dl/
-
-Install binary with dependencies using the following command:
+On macOS, Linux, or OpenBSD run the following:
 
 ```
-go get -u github.com/mercury2269/sqsmover/...
+curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sh
 ```
+
+Note that you may need to run the `sudo` version below, or alternatively chown `/usr/local`:
+```
+curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
+```
+
+On Windows download [binary](https://github.com/mercury2269/sqsmover/releases).
+
+After downloading, rename binary file 'sqsmover.exe', then add to PATH.
 
 ## Configuring Credentials
 Before using the sqsmover ensure that you've configured credentials. The best

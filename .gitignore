@@ -1,3 +1,4 @@
 *.exe
 sqsmover
 .idea
+dist
