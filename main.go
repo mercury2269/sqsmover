@@ -29,6 +29,7 @@ func main() {
 	var (
 		sourceQueueName = flag.String("source", "", "Source queue name")
 		destQueueName   = flag.String("dest", "", "Destination queue name")
+		region   = flag.String("region", "us-west-2", "AWS region")
 	)
 
 	flag.Parse()
@@ -36,7 +37,7 @@ func main() {
 	// Create an EC2 service object in the "us-west-2" region
 	// Note that you can also configure your region globally by
 	// exporting the AWS_REGION environment variable
-	svc := sqs.New(session.New(), aws.NewConfig().WithRegion("us-west-2"))
+	svc := sqs.New(session.New(), aws.NewConfig().WithRegion(*region))
 
 	err, sourceUrl := resolveQueueUrl(*sourceQueueName, svc)
 
