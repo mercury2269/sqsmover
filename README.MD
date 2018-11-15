@@ -37,8 +37,8 @@ Supply the queue source and destination names as parameters as follows
 Region will default to us-west-2, you can also override it with -region flag
 
 ```
-sqsmover -source=my_source_queue_name -dest=my_destination_queuename
-sqsmover -source=my_source_queue_name -dest=my_destination_queuename -region=eu-west-1
+sqsmover --source=my_source_queue_name --destination=my_destination_queuename
+sqsmover --source=my_source_queue_name --destination=my_destination_queuename --region=eu-west-1
 ```
 
 
