@@ -16,7 +16,6 @@ builds:
   - linux
   - windows
   - freebsd
-  - netbsd
   - openbsd
   goarch:
   - amd64
