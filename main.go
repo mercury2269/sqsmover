@@ -8,7 +8,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/fatih/color"
+	"github.com/tj/go-progress"
+	"github.com/tj/go/term"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"strconv"
 )
 
 var (
@@ -71,10 +74,17 @@ func main() {
 		AttributeNames: []*string{aws.String("All")},
 	})
 
+	numberOfMessages, _ := strconv.Atoi(*queueAttributes.Attributes["ApproximateNumberOfMessages"])
+
+	if err != nil {
+		log.Error(color.New(color.FgRed).Sprintf("Unable to locate the destination queue with name: %s, check region and name", *sourceQueue))
+		return
+	}
+
 	log.Info(color.New(color.FgCyan).Sprintf("Approximate number of messages in the source queue: %s",
 		*queueAttributes.Attributes["ApproximateNumberOfMessages"]))
 
-	moveMessages(sourceQueueUrl, destinationQueueUrl, svc)
+	moveMessages(sourceQueueUrl, destinationQueueUrl, svc, numberOfMessages)
 
 }
 
@@ -102,33 +112,45 @@ func convertSuccessfulMessageToBatchRequestEntry(messages []*sqs.Message) []*sqs
 	return result
 }
 
-func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQS) {
+func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQS, numberOfMessages int) {
 	params := &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(sourceQueueUrl),
-		VisibilityTimeout:   aws.Int64(1),
-		WaitTimeSeconds:     aws.Int64(1),
+		VisibilityTimeout:   aws.Int64(2),
+		WaitTimeSeconds:     aws.Int64(0),
 		MaxNumberOfMessages: aws.Int64(10),
 	}
 
-	for {
-		fmt.Println("Starting new batch")
+	log.Info(color.New(color.FgCyan).Sprintf("Starting to move messages..."))
+	fmt.Println()
 
+	term.HideCursor()
+	defer term.ShowCursor()
+
+	b := progress.NewInt(numberOfMessages)
+	b.Width = 40
+	b.StartDelimiter = color.New(color.FgCyan).Sprint("|")
+	b.EndDelimiter = color.New(color.FgCyan).Sprint("|")
+	b.Filled = color.New(color.FgCyan).Sprint("█")
+	b.Empty = color.New(color.FgCyan).Sprint("░")
+	b.Template(`		{{.Bar}} {{.Text}}{{.Percent | printf "%3.0f"}}%`)
+
+	render := term.Renderer()
+
+	messagesProcessed := 0
+
+	for {
 		resp, err := svc.ReceiveMessage(params)
 
 		if len(resp.Messages) == 0 {
-			fmt.Println("Batch doesn't have any messages, transfer complete")
+			fmt.Println()
+			log.Info(color.New(color.FgCyan).Sprintf("Done. Moved %s messages", strconv.Itoa(numberOfMessages)))
 			return
 		}
 
 		if err != nil {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
+			log.Error(color.New(color.FgRed).Sprint(err.Error()))
 			return
 		}
-
-		fmt.Println("Messages to transfer:")
-		fmt.Println(resp.Messages)
 
 		batch := &sqs.SendMessageBatchInput{
 			QueueUrl: aws.String(destinationQueueUrl),
@@ -138,19 +160,14 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		sendResp, err := svc.SendMessageBatch(batch)
 
 		if err != nil {
-			fmt.Println("Failed to unqueue messages to the destination queue")
-			fmt.Println(err.Error())
+			log.Error(color.New(color.FgRed).Sprintf("Failed to un-queue messages to the destination. Error:  %s", err.Error()))
 			return
 		}
 
 		if len(sendResp.Failed) > 0 {
-			fmt.Println("Failed to unqueue messages to the destination queue")
-			fmt.Println(sendResp.Failed)
+			log.Error(color.New(color.FgRed).Sprint("Failed to un-queue messages to the destination queue."))
 			return
 		}
-
-		fmt.Println("Unqueued to destination the following: ")
-		fmt.Println(sendResp.Successful)
 
 		if len(sendResp.Successful) == len(resp.Messages) {
 			deleteMessageBatch := &sqs.DeleteMessageBatchInput{
@@ -161,18 +178,21 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 			deleteResp, err := svc.DeleteMessageBatch(deleteMessageBatch)
 
 			if err != nil {
-				fmt.Println("Error deleting messages, exiting...")
+				log.Error(color.New(color.FgRed).Sprint("Error deleting messages, exiting..."))
 				return
 			}
 
 			if len(deleteResp.Failed) > 0 {
-				fmt.Println("Error deleting messages, the following were not deleted")
-				fmt.Println(deleteResp.Failed)
+				log.Error(color.New(color.FgRed).Sprintf("Error deleting messages, the following were not deleted\n %s", deleteResp.Failed))
 				return
 			}
 
-			fmt.Printf("Deleted: %d messages \n", len(deleteResp.Successful))
-			fmt.Println("========================")
+			messagesProcessed += len(resp.Messages)
 		}
+
+		b.ValueInt(messagesProcessed)
+		render(b.String())
 	}
+
+
 }
