@@ -45,7 +45,7 @@ func main() {
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(*region)})
 
 	if err != nil {
-		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region: ", *region))
+		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region \r\n", *region))
 		return
 	}
 
@@ -54,7 +54,9 @@ func main() {
 	err, sourceQueueUrl := resolveQueueUrl(svc, *sourceQueue)
 
 	if err != nil {
-		log.Error(color.New(color.FgRed).Sprintf("Unable to locate the source queue with name: %s, check region and name", *sourceQueue))
+		log.WithError(err).Error(color.New(color.FgRed).Sprintf(
+			"Unable to locate the source queue with name: %s, check region and name.",
+			*sourceQueue))
 		return
 	}
 
@@ -63,7 +65,7 @@ func main() {
 	err, destinationQueueUrl := resolveQueueUrl(svc, *destinationQueue)
 
 	if err != nil {
-		log.Error(color.New(color.FgRed).Sprintf("Unable to locate the destination queue with name: %s, check region and name", *sourceQueue))
+		log.Error(color.New(color.FgRed).Sprintf("Unable to locate the destination queue with name: %s, check region and name", *destinationQueue))
 		return
 	}
 
@@ -83,6 +85,11 @@ func main() {
 
 	log.Info(color.New(color.FgCyan).Sprintf("Approximate number of messages in the source queue: %s",
 		*queueAttributes.Attributes["ApproximateNumberOfMessages"]))
+
+	if numberOfMessages == 0 {
+		log.Info("Looks like nothing to move. Done.")
+		return
+	}
 
 	moveMessages(sourceQueueUrl, destinationQueueUrl, svc, numberOfMessages)
 
