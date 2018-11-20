@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	sourceQueue      = kingpin.Flag("source", "Source queue to move messages from").Short('s').Required().String()
-	destinationQueue = kingpin.Flag("destination", "Destination queue to move messages to").Short('d').Required().String()
+	sourceQueue      = kingpin.Flag("source", "Source queue name to move messages from").Short('s').Required().String()
+	destinationQueue = kingpin.Flag("destination", "Destination queue name to move messages to").Short('d').Required().String()
 	region           = kingpin.Flag("region", "AWS Region for source and destination queues").Short('r').Default("us-west-2").String()
 )
 
