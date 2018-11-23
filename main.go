@@ -5,6 +5,7 @@ import (
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/fatih/color"
@@ -19,19 +20,6 @@ var (
 	destinationQueue = kingpin.Flag("destination", "Destination queue to move messages to").Short('d').Required().String()
 	region           = kingpin.Flag("region", "AWS Region for source and destination queues").Short('r').Default("us-west-2").String()
 )
-
-func resolveQueueUrl(svc *sqs.SQS, queueName string) (error, string) {
-	params := &sqs.GetQueueUrlInput{
-		QueueName: aws.String(queueName),
-	}
-	resp, err := svc.GetQueueUrl(params)
-
-	if err != nil {
-		return err, ""
-	}
-
-	return nil, *resp.QueueUrl
-}
 
 func main() {
 	log.SetHandler(cli.Default)
@@ -54,9 +42,7 @@ func main() {
 	err, sourceQueueUrl := resolveQueueUrl(svc, *sourceQueue)
 
 	if err != nil {
-		log.WithError(err).Error(color.New(color.FgRed).Sprintf(
-			"Unable to locate the source queue with name: %s, check region and name.",
-			*sourceQueue))
+		logAwsError("Failed to resolve source queue", err)
 		return
 	}
 
@@ -65,7 +51,7 @@ func main() {
 	err, destinationQueueUrl := resolveQueueUrl(svc, *destinationQueue)
 
 	if err != nil {
-		log.Error(color.New(color.FgRed).Sprintf("Unable to locate the destination queue with name: %s, check region and name", *destinationQueue))
+		logAwsError("Failed to resolve destination queue", err)
 		return
 	}
 
@@ -78,11 +64,6 @@ func main() {
 
 	numberOfMessages, _ := strconv.Atoi(*queueAttributes.Attributes["ApproximateNumberOfMessages"])
 
-	if err != nil {
-		log.Error(color.New(color.FgRed).Sprintf("Unable to locate the destination queue with name: %s, check region and name", *sourceQueue))
-		return
-	}
-
 	log.Info(color.New(color.FgCyan).Sprintf("Approximate number of messages in the source queue: %s",
 		*queueAttributes.Attributes["ApproximateNumberOfMessages"]))
 
@@ -93,6 +74,27 @@ func main() {
 
 	moveMessages(sourceQueueUrl, destinationQueueUrl, svc, numberOfMessages)
 
+}
+
+func resolveQueueUrl(svc *sqs.SQS, queueName string) (error, string) {
+	params := &sqs.GetQueueUrlInput{
+		QueueName: aws.String(queueName),
+	}
+	resp, err := svc.GetQueueUrl(params)
+
+	if err != nil {
+		return err, ""
+	}
+
+	return nil, *resp.QueueUrl
+}
+
+func logAwsError(message string, err error) {
+	if awsErr, ok := err.(awserr.Error); ok {
+		log.Error(color.New(color.FgRed).Sprintf("%s. Error: %s", message, awsErr.Message()))
+	} else {
+		log.Error(color.New(color.FgRed).Sprintf("%s. Error: %s", message, err.Error()))
+	}
 }
 
 func convertToEntries(messages []*sqs.Message) []*sqs.SendMessageBatchRequestEntry {
@@ -155,7 +157,7 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		}
 
 		if err != nil {
-			log.Error(color.New(color.FgRed).Sprint(err.Error()))
+			logAwsError("Failed to receive messages", err)
 			return
 		}
 
@@ -167,12 +169,12 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		sendResp, err := svc.SendMessageBatch(batch)
 
 		if err != nil {
-			log.Error(color.New(color.FgRed).Sprintf("Failed to un-queue messages to the destination. Error:  %s", err.Error()))
+			logAwsError("Failed to un-queue messages to the destination", err)
 			return
 		}
 
 		if len(sendResp.Failed) > 0 {
-			log.Error(color.New(color.FgRed).Sprint("Failed to un-queue messages to the destination queue."))
+			log.Error(color.New(color.FgRed).Sprintf("%s messages failed to enqueue, exiting", len(sendResp.Failed)))
 			return
 		}
 
@@ -185,7 +187,7 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 			deleteResp, err := svc.DeleteMessageBatch(deleteMessageBatch)
 
 			if err != nil {
-				log.Error(color.New(color.FgRed).Sprint("Error deleting messages, exiting..."))
+				logAwsError("Failed to delete messages from source queue", err)
 				return
 			}
 
@@ -200,6 +202,5 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		b.ValueInt(messagesProcessed)
 		render(b.String())
 	}
-
 
 }
