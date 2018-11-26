@@ -2,6 +2,13 @@
 SQS Mover lets you move messages from one AWS SQS queue to another. Useful when you need
 to move deadletter queue messages back into the original queue.
 
+## Features
+
+* Reliable delivery. Messages are only deleted from the original queue if they 
+were successfully un-queued to the destination.
+* Messages are sent and received in batches for faster processing.
+* Progress indicator.
+* Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address. 
 
 ## Installation
 
