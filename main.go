@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
 	"github.com/aws/aws-sdk-go/aws"
@@ -12,7 +14,6 @@ import (
 	"github.com/tj/go-progress"
 	"github.com/tj/go/term"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"strconv"
 )
 
 var (
@@ -30,7 +31,12 @@ func main() {
 	kingpin.UsageTemplate(kingpin.CompactUsageTemplate)
 	kingpin.Parse()
 
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(*region)})
+	sess, err := session.NewSessionWithOptions(
+		session.Options{
+			Config:            aws.Config{Region: aws.String(*region)},
+			SharedConfigState: session.SharedConfigEnable,
+		},
+	)
 
 	if err != nil {
 		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region \r\n", *region))
@@ -199,8 +205,12 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 			messagesProcessed += len(resp.Messages)
 		}
 
+		// Increase the total if the approximation was under - avoids exception
+		if messagesProcessed > numberOfMessages {
+			b.Total = float64(messagesProcessed)
+		}
+
 		b.ValueInt(messagesProcessed)
 		render(b.String())
 	}
-
 }
