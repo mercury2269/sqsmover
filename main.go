@@ -109,6 +109,7 @@ func convertToEntries(messages []*sqs.Message) []*sqs.SendMessageBatchRequestEnt
 		result[i] = &sqs.SendMessageBatchRequestEntry{
 			MessageBody: message.Body,
 			Id:          message.MessageId,
+			MessageAttributes: message.MessageAttributes,
 		}
 	}
 
@@ -133,6 +134,7 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		VisibilityTimeout:   aws.Int64(2),
 		WaitTimeSeconds:     aws.Int64(0),
 		MaxNumberOfMessages: aws.Int64(10),
+	        MessageAttributeNames: []*string{aws.String(sqs.QueueAttributeNameAll),},
 	}
 
 	log.Info(color.New(color.FgCyan).Sprintf("Starting to move messages..."))
