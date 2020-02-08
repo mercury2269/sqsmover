@@ -71,6 +71,7 @@ Flags:
   -s, --source=SOURCE            Source queue to move messages from
   -d, --destination=DESTINATION  Destination queue to move messages to
   -r, --region="us-west-2"       AWS Region for source and destination queues
+  -p, --profile=""               Use a specific profile from your credential file.
 ```
 
 Examples:
@@ -85,5 +86,9 @@ sqsmover --source=my_source_queue_name --destination=my_destination_queuename --
 sqsmover -s my_source_queue_name -d my_destination_queuename -r eu-west-1
 ```
 
+Profile will default to `Default`, you can also override it with `--profile` flag
 
+```
+sqsmover --source=my_source_queue_name --destination=my_destination_queuename --profile=user
+```
 
