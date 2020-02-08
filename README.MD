@@ -2,9 +2,6 @@
 SQS Mover lets you move messages from one AWS SQS queue to another. Useful when you need
 to move deadletter queue messages back into the original queue.
 
-## Not Supported Features
-Message Attributes copy (https://github.com/mercury2269/sqsmover/issues/5)
-
 ## Features
 
 * Reliable delivery. Messages are only deleted from the original queue if they 
