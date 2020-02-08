@@ -8,7 +8,8 @@ to move deadletter queue messages back into the original queue.
 were successfully un-queued to the destination.
 * Messages are sent and received in batches for faster processing.
 * Progress indicator.
-* Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address. 
+* Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address.
+* Message Attributes are copied over. 
 
 ## Installation
 
