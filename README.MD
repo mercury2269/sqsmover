@@ -1,11 +1,11 @@
 # SQS Message Mover
-SQS Mover lets you move messages from one AWS SQS queue to another. Useful when you need
+SQS Mover moves messages from one AWS SQS queue to another. Useful when you need
 to move deadletter queue messages back into the original queue.
 
 ## Features
 
-* Reliable delivery. Messages are only deleted from the original queue if they 
-were successfully un-queued to the destination.
+* Reliable delivery. Messages are only deleted from the source queue if they 
+were successfully enqueued to the destination.
 * Messages are sent and received in batches for faster processing.
 * Progress indicator.
 * Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address. 
@@ -23,12 +23,12 @@ Note that you may need to run the `sudo` version below, or alternatively chown `
 curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
 ```
 
-On Windows download [binary](https://github.com/mercury2269/sqsmover/releases).
+On Windows download a zip file with [binary](https://github.com/mercury2269/sqsmover/releases).
 
-After downloading, rename binary file 'sqsmover.exe', then add to PATH.
+After downloading, rename the binary file to 'sqsmover.exe', and add to PATH.
 
 ## Configuring Credentials
-Before using the sqsmover ensure that you've configured AWS credentials. The best
+Before using SQS Mover ensure that you've configured AWS credentials. The best
 way to configure credentials on a development machine is to create the credentials file
 `~/.aws/credentials`, which might look like:
 
@@ -38,9 +38,9 @@ aws_access_key_id = <YOUR_ACCESS_KEY_ID>
 aws_secret_access_key = <YOUR_SECRET_ACCESS_KEY>
 ```
 
-As an alternative you can set AWS credentials in the environment variables.
+As an alternative, you can setup AWS credentials in the environment variables.
 
-The following examples show how you configure the environment variables.
+The following examples show how to configure the environment variables.
 
 Linux, OS X, or Unix
 
