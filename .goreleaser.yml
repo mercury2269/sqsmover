@@ -32,6 +32,15 @@ archives:
     format_overrides:
     - goos: windows
       format: zip
+brews:
+  - github:
+      owner: mercury2269
+      name: homebrew-tap
+    folder: Formula
+    homepage:  https://github.com/mercury2269/sqsmover
+    description: AWS SQS Message mover.
+    test: |
+      system "#{bin}/sqsmover -v"
 checksum:
   name_template: 'checksums.txt'
 snapshot:

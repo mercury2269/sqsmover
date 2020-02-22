@@ -16,6 +16,14 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+// nolint: gochecknoglobals
+var (
+	version = "dev"
+	commit  = ""
+	date    = ""
+	builtBy = ""
+)
+
 var (
 	sourceQueue      = kingpin.Flag("source", "Source queue to move messages from").Short('s').Required().String()
 	destinationQueue = kingpin.Flag("destination", "Destination queue to move messages to").Short('d').Required().String()
@@ -23,13 +31,18 @@ var (
 	profile          = kingpin.Flag("profile", "Use a specific profile from your credential file.").Short('p').Default("").String()
 )
 
+
 func main() {
 	log.SetHandler(cli.Default)
 
 	fmt.Println()
 	defer fmt.Println()
 
+	kingpin.Version(buildVersion(version, commit, date, builtBy))
 	kingpin.UsageTemplate(kingpin.CompactUsageTemplate)
+	kingpin.CommandLine.VersionFlag.Short('v')
+	kingpin.CommandLine.HelpFlag.Short('h')
+
 	kingpin.Parse()
 
 	sess, err := session.NewSessionWithOptions(
@@ -230,4 +243,18 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		b.ValueInt(messagesProcessed)
 		render(b.String())
 	}
+}
+
+func buildVersion(version, commit, date, builtBy string) string {
+	var result = fmt.Sprintf("version: %s", version)
+	if commit != "" {
+		result = fmt.Sprintf("%s\ncommit: %s", result, commit)
+	}
+	if date != "" {
+		result = fmt.Sprintf("%s\nbuilt at: %s", result, date)
+	}
+	if builtBy != "" {
+		result = fmt.Sprintf("%s\nbuilt by: %s", result, builtBy)
+	}
+	return result
 }
