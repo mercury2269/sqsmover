@@ -108,11 +108,21 @@ func logAwsError(message string, err error) {
 func convertToEntries(messages []*sqs.Message) []*sqs.SendMessageBatchRequestEntry {
 	result := make([]*sqs.SendMessageBatchRequestEntry, len(messages))
 	for i, message := range messages {
-		result[i] = &sqs.SendMessageBatchRequestEntry{
+		requestEntry := &sqs.SendMessageBatchRequestEntry{
 			MessageBody:       message.Body,
 			Id:                message.MessageId,
 			MessageAttributes: message.MessageAttributes,
 		}
+
+		if messageGroupId, ok := message.Attributes[sqs.MessageSystemAttributeNameMessageGroupId]; ok {
+			requestEntry.MessageGroupId = messageGroupId
+		}
+
+		if messageDeduplicationId, ok := message.Attributes[sqs.MessageSystemAttributeNameMessageDeduplicationId]; ok {
+			requestEntry.MessageDeduplicationId = messageDeduplicationId
+		}
+
+		result[i] = requestEntry
 	}
 
 	return result
@@ -137,6 +147,9 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		WaitTimeSeconds:       aws.Int64(0),
 		MaxNumberOfMessages:   aws.Int64(10),
 		MessageAttributeNames: []*string{aws.String(sqs.QueueAttributeNameAll)},
+		AttributeNames: []*string{
+			aws.String(sqs.MessageSystemAttributeNameMessageGroupId),
+			aws.String(sqs.MessageSystemAttributeNameMessageDeduplicationId)},
 	}
 
 	log.Info(color.New(color.FgCyan).Sprintf("Starting to move messages..."))
