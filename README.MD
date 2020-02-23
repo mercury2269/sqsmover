@@ -6,6 +6,8 @@
 
 Useful when you need to move deadletter queue messages back into the original queue.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/mercury2269/sqsmover)](https://goreportcard.com/report/github.com/mercury2269/sqsmover)
+
 ## Features
 
 * Reliable delivery. Messages are only deleted from the source queue if they 
