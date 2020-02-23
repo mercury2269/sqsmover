@@ -26,7 +26,7 @@ brew install mercury2269/homebrew-tap/sqsmover
 
 *Shell script:*
 
-The following script will install the binary into `usr/local/bin`
+The following script will install the binary into `/usr/local/bin`
 
 ```sh
 $ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sh
@@ -39,7 +39,7 @@ $ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh 
 
 **manually (including Windows)**:
 
-Download the pre-compiled binaries from the [releases page][releases] and
+Download the pre-compiled binaries from the [releases page](https://github.com/mercury2269/sqsmover/releases) and
 copy to the desired location.
 
 ### Compiling from source
