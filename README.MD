@@ -15,20 +15,51 @@ were successfully enqueued to the destination.
 
 ## Installation
 
-On macOS, Linux, or OpenBSD run the following:
+You can install the pre-compiled binary (in several different ways) or compile from source.
 
-```
-curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sh
-```
+### Install the pre-compiled binary
 
-Note that you may need to run the `sudo` version below, or alternatively chown `/usr/local`:
+*homebrew tap* (only on macOS for now):
 ```
-curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
+brew install mercury2269/homebrew-tap/sqsmover
 ```
 
-On Windows download a zip file with [binary](https://github.com/mercury2269/sqsmover/releases).
+*Shell script:*
 
-After downloading, rename the binary file to 'sqsmover.exe', and add to PATH.
+The following script will install the binary into `usr/local/bin`
+
+```sh
+$ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sh
+```
+
+Note that you may need to run the `sudo` version below, or alternatively chown `/usr/local/bin`:
+```sh
+$ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
+```
+
+**manually (including Windows)**:
+
+Download the pre-compiled binaries from the [releases page][releases] and
+copy to the desired location.
+
+### Compiling from source
+
+You will need to have [Golang installed](https://golang.org/doc/install).
+
+```sh
+# clone it outside GOPATH
+git clone https://github.com/mercury2269/sqsmover
+cd sqsmover
+
+# get dependencies using go modules (needs go 1.11+)
+go get ./...
+
+# build
+go build -o sqsmover .
+
+# check it works
+./sqsmover --version
+```
 
 ## Configuring Credentials
 Before using SQS Mover ensure that you've configured AWS credentials. The best
