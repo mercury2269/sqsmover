@@ -15,16 +15,17 @@ were successfully enqueued to the destination.
 
 ## Installation
 
-You can install the pre-compiled binary (in several different ways) or compile from source.
+SQS Mover works on most operating systems (macOS, Linux, Windows) without additional dependencies. You can install
+the pre-compiled binary (in several different ways) or compile from source.
 
 ### Install the pre-compiled binary
 
-*homebrew tap* (only on macOS for now):
+**homebrew tap** (only on macOS for now):
 ```
 brew install mercury2269/homebrew-tap/sqsmover
 ```
 
-*Shell script:*
+**Shell script:**
 
 The following script will install the binary into `/usr/local/bin`
 
