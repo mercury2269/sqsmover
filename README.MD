@@ -8,7 +8,7 @@ to move deadletter queue messages back into the original queue.
 were successfully enqueued to the destination.
 * Messages are sent and received in batches for faster processing.
 * Progress indicator.
-* Friendly output and error message.
+* User friendly info and error messages.
 * Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address.
 * Message Attributes are copied over.
 * Support for FIFO queues. MessageGroupId and MessageDeduplicationId are copied over to the destination messages.
