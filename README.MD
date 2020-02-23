@@ -95,7 +95,7 @@ set AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
 ```
 sqsmover --help
 
-usage: sqsmover.exe --source=SOURCE --destination=DESTINATION [<flags>]
+usage: sqsmover --source=SOURCE --destination=DESTINATION [<flags>]
 
 Flags:
       --help                     Show context-sensitive help (also try
