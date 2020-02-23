@@ -1,6 +1,10 @@
 # SQS Message Mover
-SQS Mover moves messages from one AWS SQS queue to another. Useful when you need
-to move deadletter queue messages back into the original queue.
+
+`sqsmover` is a tool for moving AWS SQS messages from one queue to another. 
+
+![sqs-mover-intro](https://user-images.githubusercontent.com/159128/75104229-721d7580-55bb-11ea-9b06-437353a174c0.gif)
+
+Useful when you need to move deadletter queue messages back into the original queue.
 
 ## Features
 
@@ -15,7 +19,7 @@ were successfully enqueued to the destination.
 
 ## Installation
 
-SQS Mover works on most operating systems (macOS, Linux, Windows) without additional dependencies. You can install
+SQS Mover is pre-compiled for macOS, Linux, Windows and does not require additional dependencies. You can install
 the pre-compiled binary (in several different ways) or compile from source.
 
 ### Install the pre-compiled binary
