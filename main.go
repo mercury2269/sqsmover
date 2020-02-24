@@ -83,6 +83,11 @@ func main() {
 		AttributeNames: []*string{aws.String("All")},
 	})
 
+	if err != nil {
+		logAwsError("Failed to resolve queue attributes", err)
+		return
+	}
+
 	numberOfMessages, _ := strconv.Atoi(*queueAttributes.Attributes["ApproximateNumberOfMessages"])
 
 	log.Info(color.New(color.FgCyan).Sprintf("Approximate number of messages in the source queue: %d", numberOfMessages))
