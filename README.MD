@@ -4,14 +4,14 @@ to move deadletter queue messages back into the original queue.
 
 ## Features
 
-* Reliable delivery. Messages are only deleted from the source queue if they 
-were successfully enqueued to the destination.
+* Reliable delivery. Messages are only deleted from the source queue if they were enqueued to the destination.
 * Messages are sent and received in batches for faster processing.
 * Progress indicator.
 * Friendly output and error message.
 * Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address.
 * Message Attributes are copied over.
 * Support for FIFO queues. MessageGroupId and MessageDeduplicationId are copied over to the destination messages.
+* Optional flag to limit the number of messages to move.
 
 ## Installation
 
@@ -98,12 +98,14 @@ sqsmover --help
 usage: sqsmover.exe --source=SOURCE --destination=DESTINATION [<flags>]
 
 Flags:
-      --help                     Show context-sensitive help (also try
+  -h, --help                     Show context-sensitive help (also try
                                  --help-long and --help-man).
-  -s, --source=SOURCE            Source queue to move messages from
-  -d, --destination=DESTINATION  Destination queue to move messages to
-  -r, --region="us-west-2"       AWS Region for source and destination queues
-  -p, --profile=""               Use a specific profile from your credential file.
+  -s, --source=SOURCE            Source queue name to move messages from.
+  -d, --destination=DESTINATION  Destination queue name to move messages to.
+  -r, --region="us-west-2"       AWS region for source and destination queues.
+  -p, --profile=""               Use a specific profile from AWS credentials file.
+  -l, --limit=0                  Limits number of messages moved. No limit is set by default.
+  -v, --version                  Show application version.
 ```
 
 Examples:
@@ -122,5 +124,10 @@ Profile will default to `Default`, you can also override it with `--profile` fla
 
 ```
 sqsmover --source=my_source_queue_name --destination=my_destination_queuename --profile=user
+```
+
+Limit number of moved messages to 10
+```
+sqsmover -s my_source_queue_name -d my_destination_queuename -l 10
 ```
 
