@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strconv"
+  "encoding/json"
+  "crypto/rand"
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
@@ -127,13 +129,28 @@ func logAwsError(message string, err error) {
 	}
 }
 
+func randToken(num int) string {
+    b := make([]byte, num)
+    rand.Read(b)
+    return fmt.Sprintf("%x", b)
+}
+
 func convertToEntries(messages []*sqs.Message) []*sqs.SendMessageBatchRequestEntry {
 	result := make([]*sqs.SendMessageBatchRequestEntry, len(messages))
 	for i, message := range messages {
-		requestEntry := &sqs.SendMessageBatchRequestEntry{
+
+    var msgData map[string]interface{}
+    json.Unmarshal([]byte(*message.Body), &msgData)
+
+    gid := "customer_" + fmt.Sprint(msgData["message_group_id"]) + randToken(8)
+    ddupId := randToken(32)
+
+    requestEntry := &sqs.SendMessageBatchRequestEntry{
 			MessageBody:       message.Body,
 			Id:                message.MessageId,
 			MessageAttributes: message.MessageAttributes,
+      MessageGroupId:    &gid,
+      MessageDeduplicationId: &ddupId,
 		}
 
 		if messageGroupId, ok := message.Attributes[sqs.MessageSystemAttributeNameMessageGroupId]; ok {
