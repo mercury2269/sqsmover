@@ -44,6 +44,11 @@ Note that you may need to run the `sudo` version below, or alternatively chown `
 $ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
 ```
 
+**Chocolatey (Windows)**
+```
+choco install sqsmover
+```
+
 **manually (including Windows)**:
 
 Download the pre-compiled binaries from the [releases page](https://github.com/mercury2269/sqsmover/releases) and
