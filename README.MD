@@ -1,12 +1,10 @@
 # SQS Message Mover
+[![Go Report Card](https://goreportcard.com/badge/github.com/mercury2269/sqsmover)](https://goreportcard.com/report/github.com/mercury2269/sqsmover) ![GitHub](https://img.shields.io/github/license/mercury2269/sqsmover)
 
-`sqsmover` is a tool for moving AWS SQS messages from one queue to another. 
+`sqsmover` is a tool for moving AWS SQS messages from one queue to another. Useful when you need to move deadletter queue messages back into the original queue.
 
 ![sqs-mover-intro](https://user-images.githubusercontent.com/159128/75104229-721d7580-55bb-11ea-9b06-437353a174c0.gif)
 
-Useful when you need to move deadletter queue messages back into the original queue.
-
-[![Go Report Card](https://goreportcard.com/badge/github.com/mercury2269/sqsmover)](https://goreportcard.com/report/github.com/mercury2269/sqsmover)
 
 ## Features
 
@@ -19,16 +17,56 @@ Useful when you need to move deadletter queue messages back into the original qu
 * Support for FIFO queues. MessageGroupId and MessageDeduplicationId are copied over to the destination messages.
 * Optional flag to limit the number of messages to move.
 
-## Installation
+## Getting Started
 
 SQS Mover is pre-compiled for macOS, Linux, Windows and does not require additional dependencies. You can install
 the pre-compiled binary (in several different ways) or compile from source.
 
-### Install the pre-compiled binary
+### Prerequisites
+
+Specifying AWS credentials in either a shared credentials file or environment variables. 
+
+#### Creating the Credentials File
+
+If you don’t have a shared credentials file (`~/.aws/credentials`), you can use any text editor to create one in your home directory. Add the following content to your credentials file, replacing `<YOUR_ACCESS_KEY_ID>` and `<YOUR_SECRET_ACCESS_KEY>` with your credentials.
+
+```
+[default]
+aws_access_key_id = <YOUR_ACCESS_KEY_ID>
+aws_secret_access_key = <YOUR_SECRET_ACCESS_KEY>
+```
+
+The [default] heading defines credentials for the default profile, which the SQSMover will use unless you configure it to use another profile. 
+
+#### Environment variables
+
+As an alternative, you can setup AWS credentials in the environment variables.
+
+The following examples show how to configure the environment variables.
+
+Linux, OS X, or Unix
+
+```
+export AWS_ACCESS_KEY_ID=YOUR_AKID
+export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+```
+Windows
+
+```
+set AWS_ACCESS_KEY_ID=YOUR_AKID
+set AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+```
+
+### Installing
 
 **homebrew tap** (only on macOS for now):
 ```
 brew install mercury2269/homebrew-tap/sqsmover
+```
+
+**Chocolatey (Windows)**
+```
+choco install sqsmover
 ```
 
 **Shell script:**
@@ -44,14 +82,9 @@ Note that you may need to run the `sudo` version below, or alternatively chown `
 $ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
 ```
 
-**Chocolatey (Windows)**
-```
-choco install sqsmover
-```
+**Manually**:
 
-**manually (including Windows)**:
-
-Download the pre-compiled binaries from the [releases page](https://github.com/mercury2269/sqsmover/releases) and
+Download the pre-compiled binary from the [releases page](https://github.com/mercury2269/sqsmover/releases) and
 copy to the desired location.
 
 ### Compiling from source
@@ -73,33 +106,6 @@ go build -o sqsmover .
 ./sqsmover --version
 ```
 
-## Configuring Credentials
-Before using SQS Mover ensure that you've configured AWS credentials. The best
-way to configure credentials on a development machine is to create the credentials file
-`~/.aws/credentials`, which might look like:
-
-```
-[default]
-aws_access_key_id = <YOUR_ACCESS_KEY_ID>
-aws_secret_access_key = <YOUR_SECRET_ACCESS_KEY>
-```
-
-As an alternative, you can setup AWS credentials in the environment variables.
-
-The following examples show how to configure the environment variables.
-
-Linux, OS X, or Unix
-
-```
-export AWS_ACCESS_KEY_ID=YOUR_AKID
-export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
-```
-Windows
-
-```
-set AWS_ACCESS_KEY_ID=YOUR_AKID
-set AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
-```
 
 ## Usage
 
