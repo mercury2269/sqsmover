@@ -8,14 +8,14 @@
 
 ## Features
 
-* Reliable delivery. Messages are only deleted from the source queue if they were enqueued to the destination.
-* Messages are sent and received in batches for faster processing.
+* Reliable delivery. SQS Mover will only delete messages from the source queue after they were enqueued to the destination.
+* Receives and sends messages in batches for faster processing.
 * Progress indicator.
 * User friendly info and error messages.
 * Queue name resolution. For ease of use, you only need to provide a queue name and not the full `arn` address.
-* Message Attributes are copied over.
+* Message attributes copy.
 * Support for FIFO queues. MessageGroupId and MessageDeduplicationId are copied over to the destination messages.
-* Optional flag to limit the number of messages to move.
+* An optional flag to limit the number of messages to move.
 
 ## Getting Started
 
@@ -37,6 +37,12 @@ aws_secret_access_key = <YOUR_SECRET_ACCESS_KEY>
 ```
 
 The [default] heading defines credentials for the default profile, which the SQSMover will use unless you configure it to use another profile. 
+
+Optionally you can configure default region in `~/.aws/config`
+```
+[default]
+region=us-west-2
+```
 
 #### Environment variables
 
@@ -117,11 +123,12 @@ usage: sqsmover --source=SOURCE --destination=DESTINATION [<flags>]
 Flags:
   -h, --help                     Show context-sensitive help (also try
                                  --help-long and --help-man).
-  -s, --source=SOURCE            Source queue name to move messages from.
-  -d, --destination=DESTINATION  Destination queue name to move messages to.
-  -r, --region="us-west-2"       AWS region for source and destination queues.
+  -s, --source=SOURCE            The source queue name to move messages from.
+  -d, --destination=DESTINATION  The destination queue name to move messages to.
+  -r, --region="us-west-2"       The AWS region for source and destination queues.
   -p, --profile=""               Use a specific profile from AWS credentials file.
-  -l, --limit=0                  Limits number of messages moved. No limit is set by default.
+  -l, --limit=0                  Limits total number of messages moved. No limit is set by default.
+  -b, --batch=10                 The maximum number of messages to move at a time.
   -v, --version                  Show application version.
 ```
 
@@ -148,3 +155,9 @@ Limit number of moved messages to 10
 sqsmover -s my_source_queue_name -d my_destination_queuename -l 10
 ```
 
+By default, `sqsmover` will try to move 10 messages at a time. However, if the total size of messages
+in a batch exceeds 256kb (262,144 bytes) you will receive an error: `Batch requests cannot be longer than 262144 bytes. You have sent x bytes.`
+To resolve, reduce the batch size by setting `-b` flag.
+```
+sqsmover -s my_source_queue_name -d my_destination_queuename -b 3
+```

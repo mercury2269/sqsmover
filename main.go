@@ -25,11 +25,12 @@ var (
 )
 
 var (
-	sourceQueue      = kingpin.Flag("source", "Source queue name to move messages from.").Short('s').Required().String()
-	destinationQueue = kingpin.Flag("destination", "Destination queue name to move messages to.").Short('d').Required().String()
-	region           = kingpin.Flag("region", "AWS region for source and destination queues.").Short('r').Default("us-west-2").String()
-	profile          = kingpin.Flag("profile", "Use a specific profile from AWS credentials file.").Short('p').Default("").String()
-	limit            = kingpin.Flag("limit", "Limits number of messages moved. No limit is set by default.").Short('l').Default("0").Int()
+	sourceQueue      = kingpin.Flag("source", "The source queue name to move messages from.").Short('s').Required().String()
+	destinationQueue = kingpin.Flag("destination", "The destination queue name to move messages to.").Short('d').Required().String()
+	region           = kingpin.Flag("region", "The AWS region for source and destination queues.").Short('r').Default("").String()
+	profile          = kingpin.Flag("profile", "Use a specific profile from AWS credentials file.").Short('p').String()
+	limit            = kingpin.Flag("limit", "Limits total number of messages moved. No limit is set by default.").Short('l').Default("0").Int()
+	maxBatchSize     = kingpin.Flag("batch", "The maximum number of messages to move at a time").Short('b').Default("10").Int64()
 )
 
 func main() {
@@ -45,13 +46,16 @@ func main() {
 
 	kingpin.Parse()
 
-	sess, err := session.NewSessionWithOptions(
-		session.Options{
-			Config:            aws.Config{Region: aws.String(*region)},
-			Profile:           *profile,
-			SharedConfigState: session.SharedConfigEnable,
-		},
-	)
+	options := session.Options{
+		Profile:           *profile,
+		SharedConfigState: session.SharedConfigEnable,
+	}
+
+	if region != nil {
+		options.Config = aws.Config{Region: aws.String(*region)}
+	}
+
+	sess, err := session.NewSessionWithOptions(options)
 
 	if err != nil {
 		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region \r\n", *region))
@@ -163,17 +167,16 @@ func convertSuccessfulMessageToBatchRequestEntry(messages []*sqs.Message) []*sqs
 }
 
 func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQS, totalMessages int) {
-	params := &sqs.ReceiveMessageInput{
+	var params = &sqs.ReceiveMessageInput{
 		QueueUrl:              aws.String(sourceQueueUrl),
 		VisibilityTimeout:     aws.Int64(2),
 		WaitTimeSeconds:       aws.Int64(0),
-		MaxNumberOfMessages:   aws.Int64(10),
+		MaxNumberOfMessages:   aws.Int64(*maxBatchSize),
 		MessageAttributeNames: []*string{aws.String(sqs.QueueAttributeNameAll)},
 		AttributeNames: []*string{
 			aws.String(sqs.MessageSystemAttributeNameMessageGroupId),
 			aws.String(sqs.MessageSystemAttributeNameMessageDeduplicationId)},
 	}
-
 	log.Info(color.New(color.FgCyan).Sprintf("Starting to move messages..."))
 	fmt.Println()
 
