@@ -1,12 +1,12 @@
 # sqsmover
 a tool to move messages between sqs queue.
 
-Usage:  `sqsmover -from {src queue name} -to {dst queue name}`
+Usage:  `sqsmover -source {src queue name} -destination {dst queue name}`
 
 Other optioal flags:
 ```
-  -limit {number}         maximum number of messages to be moved, default 0: unlimited
-  -parallel {number}      numers of messages move in parallel, default 10.
-  -profile {aws profile}  default "default"
-  -region {aws region}    default "us-west-2"
+  -limit {number}         Limits total number of messages moved. No limit is set by default.
+  -parallel {number}      Max numers of messages to be moved in parallel (default 10).
+  -profile {aws profile}  Use a specific profile from AWS credentials file (default "default").
+  -region {aws region}    The AWS region for source and destination queues (default "us-west-2").
 ```
