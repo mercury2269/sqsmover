@@ -17,53 +17,10 @@
 * Support for FIFO queues. MessageGroupId and MessageDeduplicationId are copied over to the destination messages.
 * An optional flag to limit the number of messages to move.
 
-## Getting Started
+## Installing
 
 SQS Mover is pre-compiled for macOS, Linux, Windows and does not require additional dependencies. You can install
 the pre-compiled binary (in several different ways) or compile from source.
-
-### Prerequisites
-
-Specifying AWS credentials in either a shared credentials file or environment variables. 
-
-#### Creating the Credentials File
-
-If you don’t have a shared credentials file (`~/.aws/credentials`), you can use any text editor to create one in your home directory. Add the following content to your credentials file, replacing `<YOUR_ACCESS_KEY_ID>` and `<YOUR_SECRET_ACCESS_KEY>` with your credentials.
-
-```
-[default]
-aws_access_key_id = <YOUR_ACCESS_KEY_ID>
-aws_secret_access_key = <YOUR_SECRET_ACCESS_KEY>
-```
-
-The [default] heading defines credentials for the default profile, which the SQSMover will use unless you configure it to use another profile. 
-
-Optionally you can configure default region in `~/.aws/config`
-```
-[default]
-region=us-west-2
-```
-
-#### Environment variables
-
-As an alternative, you can setup AWS credentials in the environment variables.
-
-The following examples show how to configure the environment variables.
-
-Linux, OS X, or Unix
-
-```
-export AWS_ACCESS_KEY_ID=YOUR_AKID
-export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
-```
-Windows
-
-```
-set AWS_ACCESS_KEY_ID=YOUR_AKID
-set AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
-```
-
-### Installing
 
 **homebrew tap** (only on macOS for now):
 ```
@@ -93,29 +50,50 @@ $ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh 
 Download the pre-compiled binary from the [releases page](https://github.com/mercury2269/sqsmover/releases) and
 copy to the desired location.
 
-### Compiling from source
+## Set up AWS credentials 
 
-You will need to have [Golang installed](https://golang.org/doc/install).
+Specifying AWS credentials in either a shared credentials file or environment variables. 
 
-```sh
-# clone it outside GOPATH
-git clone https://github.com/mercury2269/sqsmover
-cd sqsmover
+### Option 1: Creating the Credentials File
 
-# get dependencies using go modules (needs go 1.11+)
-go get ./...
+If you don’t have a shared credentials file (`~/.aws/credentials`), you can use any text editor to create one in your home directory. Add the following content to your credentials file, replacing `<YOUR_ACCESS_KEY_ID>` and `<YOUR_SECRET_ACCESS_KEY>` with your credentials.
 
-# build
-go build -o sqsmover .
-
-# check it works
-./sqsmover --version
+```
+[default]
+aws_access_key_id = <YOUR_ACCESS_KEY_ID>
+aws_secret_access_key = <YOUR_SECRET_ACCESS_KEY>
 ```
 
+The [default] heading defines credentials for the default profile, which the SQSMover will use unless you configure it to use another profile. 
+
+Optionally you can configure default region in `~/.aws/config`
+```
+[default]
+region=us-west-2
+```
+
+### Option 2: Environment variables
+
+As an alternative, you can setup AWS credentials in the environment variables.
+
+The following examples show how to configure the environment variables.
+
+Linux, OS X, or Unix
+
+```
+export AWS_ACCESS_KEY_ID=YOUR_AKID
+export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+```
+Windows
+
+```
+set AWS_ACCESS_KEY_ID=YOUR_AKID
+set AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+```
 
 ## Usage
 
-```
+```bash
 sqsmover --help
 
 usage: sqsmover --source=SOURCE --destination=DESTINATION [<flags>]
@@ -160,4 +138,23 @@ in a batch exceeds 256kb (262,144 bytes) you will receive an error: `Batch reque
 To resolve, reduce the batch size by setting `-b` flag.
 ```
 sqsmover -s my_source_queue_name -d my_destination_queuename -b 3
+```
+
+## Compiling from source
+
+You will need to have [Golang installed](https://golang.org/doc/install).
+
+```sh
+# clone it outside GOPATH
+git clone https://github.com/mercury2269/sqsmover
+cd sqsmover
+
+# get dependencies using go modules (needs go 1.11+)
+go get ./...
+
+# build
+go build -o sqsmover .
+
+# check it works
+./sqsmover --version
 ```
