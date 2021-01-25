@@ -31,6 +31,7 @@ var (
 	profile          = kingpin.Flag("profile", "Use a specific profile from AWS credentials file.").Short('p').String()
 	limit            = kingpin.Flag("limit", "Limits total number of messages moved. No limit is set by default.").Short('l').Default("0").Int()
 	maxBatchSize     = kingpin.Flag("batch", "The maximum number of messages to move at a time").Short('b').Default("10").Int64()
+	messageId        = kingpin.Flag("messageId", "The messageId for a single message to move").Short('m').Default("").String()
 )
 
 func main() {
@@ -106,6 +107,11 @@ func main() {
 		log.Info(color.New(color.FgCyan).Sprintf("Limit is set, will only move %d messages", numberOfMessages))
 	}
 
+	if *messageId != "" {
+		moveMessage(*messageId, sourceQueueUrl, destinationQueueUrl, svc)
+		return
+	}
+
 	moveMessages(sourceQueueUrl, destinationQueueUrl, svc, numberOfMessages)
 
 }
@@ -164,6 +170,106 @@ func convertSuccessfulMessageToBatchRequestEntry(messages []*sqs.Message) []*sqs
 	}
 
 	return result
+}
+
+func moveMessage(messageId string, sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQS) {
+
+	var params = &sqs.ReceiveMessageInput{
+		QueueUrl:              aws.String(sourceQueueUrl),
+		VisibilityTimeout:     aws.Int64(2),
+		WaitTimeSeconds:       aws.Int64(0),
+		MaxNumberOfMessages:   aws.Int64(*maxBatchSize),
+		MessageAttributeNames: []*string{aws.String(sqs.QueueAttributeNameAll)},
+		AttributeNames: []*string{
+			aws.String(sqs.MessageSystemAttributeNameMessageGroupId),
+			aws.String(sqs.MessageSystemAttributeNameMessageDeduplicationId)},
+	}
+	log.Info(color.New(color.FgCyan).Sprintf("Starting to move message..."))
+	fmt.Println()
+
+	term.HideCursor()
+	defer term.ShowCursor()
+
+	b := progress.NewInt(1)
+	b.Width = 40
+	b.StartDelimiter = color.New(color.FgCyan).Sprint("|")
+	b.EndDelimiter = color.New(color.FgCyan).Sprint("|")
+	b.Filled = color.New(color.FgCyan).Sprint("█")
+	b.Empty = color.New(color.FgCyan).Sprint("░")
+	b.Template(`		{{.Bar}} {{.Text}}{{.Percent | printf "%3.0f"}}%`)
+
+	render := term.Renderer()
+
+	resp, err := svc.ReceiveMessage(params)
+
+	if len(resp.Messages) == 0 {
+		fmt.Println()
+		log.Info(color.New(color.FgCyan).Sprintf("No messages found, source queue empty or message 'in flight' ?"))
+		return
+	}
+
+	if err != nil {
+		logAwsError("Failed to receive message", err)
+		return
+	}
+
+	messageFound := false
+	messagesToCopy := make([]*sqs.Message, 1)
+
+	for i, message := range resp.Messages {
+		if messageId == *message.MessageId {
+			log.Info(color.New(color.FgCyan).Sprintf("Message found at index %d", i))
+			messagesToCopy[0] = message
+			messageFound = true
+		}
+	}
+
+	if !messageFound {
+		log.Error(color.New(color.FgRed).Sprintf("Message %s not found", messageId))
+		return
+	}
+
+	batch := &sqs.SendMessageBatchInput{
+		QueueUrl: aws.String(destinationQueueUrl),
+		Entries:  convertToEntries(messagesToCopy),
+	}
+
+	sendResp, err := svc.SendMessageBatch(batch)
+
+	if err != nil {
+		logAwsError("Failed to un-queue message to the destination", err)
+		return
+	}
+
+	if len(sendResp.Failed) > 0 {
+		log.Error(color.New(color.FgRed).Sprintf("%s messages failed to enqueue, exiting", len(sendResp.Failed)))
+		return
+	}
+
+	if len(sendResp.Successful) == len(messagesToCopy) {
+		deleteMessageBatch := &sqs.DeleteMessageBatchInput{
+			Entries:  convertSuccessfulMessageToBatchRequestEntry(messagesToCopy),
+			QueueUrl: aws.String(sourceQueueUrl),
+		}
+
+		deleteResp, err := svc.DeleteMessageBatch(deleteMessageBatch)
+
+		if err != nil {
+			logAwsError("Failed to delete messages from source queue", err)
+			return
+		}
+
+		if len(deleteResp.Failed) > 0 {
+			log.Error(color.New(color.FgRed).Sprintf("Error deleting messages, the following were not deleted\n %s", deleteResp.Failed))
+			return
+		}
+	}
+
+	b.Total = float64(1)
+	b.ValueInt(1)
+	render(b.String())
+
+	log.Info("Message moved successfully.")
 }
 
 func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQS, totalMessages int) {
