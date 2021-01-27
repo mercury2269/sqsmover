@@ -45,6 +45,18 @@ Note that you may need to run the `sudo` version below, or alternatively chown `
 $ curl https://raw.githubusercontent.com/mercury2269/sqsmover/master/install.sh | sudo sh
 ```
 
+**From Source**
+
+Download:
+```sh
+git clone git@github.com:mercury2269/sqsmover.git && cd sqsmover
+```
+
+Run:
+```sh
+AWS_PROFILE=nbos-ris AWS_REGION=us-west-2 go run main.go --source transactions-dlq --destination transactions
+```
+
 **Manually**:
 
 Download the pre-compiled binary from the [releases page](https://github.com/mercury2269/sqsmover/releases) and
