@@ -8,6 +8,7 @@ import (
 	"github.com/apex/log/handlers/cli"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/fatih/color"
@@ -47,8 +48,9 @@ func main() {
 	kingpin.Parse()
 
 	options := session.Options{
-		Profile:           *profile,
-		SharedConfigState: session.SharedConfigEnable,
+		Profile:                 *profile,
+		SharedConfigState:       session.SharedConfigEnable,
+		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
 	}
 
 	if region != nil {
