@@ -228,7 +228,10 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		}
 
 		if len(sendResp.Failed) > 0 {
-			log.Error(color.New(color.FgRed).Sprintf("%s messages failed to enqueue, exiting", len(sendResp.Failed)))
+			log.Error(color.New(color.FgRed).Sprintf("%d messages failed to enqueue, see details below", len(sendResp.Failed)))
+			for index, failed := range sendResp.Failed {
+				log.Error(color.New(color.FgRed).Sprintf("%d - (%s) %s", index, *failed.Code, *failed.Message))
+			}
 			return
 		}
 
