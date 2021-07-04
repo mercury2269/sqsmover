@@ -22,14 +22,14 @@
 SQS Mover is pre-compiled for macOS, Linux, Windows and does not require additional dependencies. You can install
 the pre-compiled binary (in several different ways) or compile from source.
 
-**homebrew tap** (only on macOS for now):
-```
-brew install mercury2269/homebrew-tap/sqsmover
+**Homebrew**:
+```sh
+$ brew install sqsmover
 ```
 
 **Chocolatey (Windows)**
-```
-choco install sqsmover
+```sh
+$ choco install sqsmover
 ```
 
 **Shell script:**
