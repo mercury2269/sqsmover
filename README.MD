@@ -116,6 +116,7 @@ Flags:
   -s, --source=SOURCE            The source queue name to move messages from.
   -d, --destination=DESTINATION  The destination queue name to move messages to.
   -r, --region="us-west-2"       The AWS region for source and destination queues.
+  -e, --endpoint="https://..."   Use a specific endpoint in an AWS region. For more information see https://docs.aws.amazon.com/general/latest/gr/sqs-service.html
   -p, --profile=""               Use a specific profile from AWS credentials file.
   -l, --limit=0                  Limits total number of messages moved. No limit is set by default.
   -b, --batch=10                 The maximum number of messages to move at a time.
