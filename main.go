@@ -203,15 +203,14 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 
 	for {
 		resp, err := svc.ReceiveMessage(params)
+		if err != nil {
+			logAwsError("Failed to receive messages", err)
+			return
+		}
 
 		if len(resp.Messages) == 0 || messagesProcessed == totalMessages {
 			fmt.Println()
 			log.Info(color.New(color.FgCyan).Sprintf("Done. Moved %s messages", strconv.Itoa(totalMessages)))
-			return
-		}
-
-		if err != nil {
-			logAwsError("Failed to receive messages", err)
 			return
 		}
 
