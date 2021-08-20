@@ -1,6 +1,6 @@
 module github.com/mercury2269/sqsmover
 
-go 1.16
+go 1.17
 
 require (
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
@@ -11,4 +11,13 @@ require (
 	github.com/tj/go v1.8.7
 	github.com/tj/go-progress v0.0.0-20180508172012-fadc638a53dd
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+)
+
+require (
+	github.com/buger/goterm v0.0.0-20181115115552-c206103e1f37 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	golang.org/x/sys v0.0.0-20210423082822-04245dca01da // indirect
 )
