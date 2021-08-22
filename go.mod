@@ -15,6 +15,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/tj/go v1.8.7
 	github.com/tj/go-progress v0.0.0-20180508172012-fadc638a53dd
-	golang.org/x/sys v0.0.0-20210423082822-04245dca01da // indirect
+	golang.org/x/sys v0.0.0-20210819135213-f52c844e1c1c // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
