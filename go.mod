@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/apex/log v1.9.0
-	github.com/aws/aws-sdk-go v1.39.4
+	github.com/aws/aws-sdk-go v1.40.45
 	github.com/buger/goterm v0.0.0-20181115115552-c206103e1f37 // indirect
 	github.com/fatih/color v1.12.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
