@@ -2,6 +2,9 @@
 
 A tool to move messages between SQS queues
 
+Similar instructions and more documentation can be found here:<br>
+[Moving Messages from Parsed Low Dead Letter Queue to Parsed Low Queue](https://arcticwolf.atlassian.net/wiki/spaces/AWD/pages/1273889155/Moving+Messages+from+Parsed+Low+Dead+Letter+Queue+to+Parsed+Low+Queue)
+
 ## Compiling from source
 
 You will need to have [Golang installed](https://golang.org/doc/install).
@@ -28,7 +31,7 @@ To run sqsmover you must:
 2. Navigate to the awn repo
 
 
-3. From awn repo folder, run `source setup.bash` (if you haven't already)
+3. From the awn repo folder, run `source setup.bash` (if you haven't already)
 
 
 4. From any directory, run aws_creds_from_profile with the desired AWS profile
