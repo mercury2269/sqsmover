@@ -1,4 +1,4 @@
-module github.com/rtkbzou/sqsmover
+module github.com/rtkwlf/sqsmover
 
 go 1.14
 

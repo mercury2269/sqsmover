@@ -1,4 +1,4 @@
-package main
+package rtksqs
 
 import (
 	"github.com/aws/aws-sdk-go/service/sqs"
@@ -8,8 +8,6 @@ import (
 type sqsMock struct {
 	mock.Mock
 }
-
-var _ sqsAPI = (*sqsMock)(nil)
 
 func (m *sqsMock) GetQueueUrl(input *sqs.GetQueueUrlInput) (*sqs.GetQueueUrlOutput, error) {
 	args := m.Called(input)
