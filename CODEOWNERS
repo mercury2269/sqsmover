@@ -1,0 +1,6 @@
+
+.github/workflows/check-dependabot.yaml @rtkwlf/rnd_devsecops
+.github/workflows/dependabot-ticketer.yaml @rtkwlf/rnd_devsecops
+.github/dependabot.yaml @rtkwlf/rnd_devsecops
+.github/workflows/codeql-analysis.yaml @rtkwlf/rnd_devsecops
+.github/workflows/jira-event-sync.yaml @rtkwlf/rnd_devsecops

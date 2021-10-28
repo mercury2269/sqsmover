@@ -1,0 +1,76 @@
+################
+# DO NOT EDIT! #
+################
+# This file is maintained by DevSecOps automation,
+# making any changes here will prompt a new PR to
+# be opened against your repository.
+# Please reach out to DevSecOps if there are any questions, concerns, or to report any errors.
+name: dependabot workflow
+on:
+  workflow_run:
+    # Successful completion of dependabot workflow triggers this job
+    workflows: [check dependabot]
+    types:
+    - completed
+
+permissions: write-all
+
+jobs:
+  dependabot-ticketer:
+    runs-on: ubuntu-20.04
+    # Explicitly verify the workflow of check dependabot was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      # The Jira secrets are stored in GitHub under the rtkwlf org
+      JIRA_API_TOKEN: ${{ secrets.PAT_RTKWLF_DEVSECOPS_TICKETER }}
+      JIRA_BASE_URL: ${{ secrets.RTKWLF_JIRA_BASE_URL }}
+      JIRA_ISSUE_TYPE: R&D Security Finding
+      JIRA_PROJECT: AWN
+      # If the JIRA_RND_TEAM is empty then tickets wont be enabled
+      # otherwise the value placed here by the user on initial PR will be preserved
+      JIRA_RND_TEAM:
+      JIRA_USER_EMAIL: ${{ secrets.RTKWLF_DEVSECOPS_TICKETER_EMAIL }}
+    steps:
+      # Set package variables to add additional information to the created Jira ticket
+    - name: get package-ecosystem
+      id: package-ecosystem
+      run: |
+        echo ::set-output name=PACKAGE_TYPE::$(echo ${{ github.event.workflow_run.head_branch }} | cut -d '/' -f2)
+        echo ::set-output name=PACKAGE::$(echo ${{ github.event.workflow_run.head_branch }} | cut -d '/' -f3)
+    - name: login to jira
+      uses: atlassian/gajira-login@v2.0.0
+      env:
+        JIRA_API_TOKEN: ${{ env.JIRA_API_TOKEN }}
+        JIRA_BASE_URL: ${{ env.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ env.JIRA_USER_EMAIL }}
+    - name: create jira issue
+      id: create
+      uses: atlassian/gajira-create@v2.0.1
+      with:
+        project: ${{ env.JIRA_PROJECT }}
+        issuetype: ${{ env.JIRA_ISSUE_TYPE }}
+        summary: |
+          [Dependabot] - ${{ github.event.repository.name }} - ${{ steps.package-ecosystem.outputs.PACKAGE }}
+        description: |
+          GitHub PR: ${{ github.event.repository.html_url }}/pull/${{ github.event.workflow_run.pull_requests[0].number }}
+          Package Type: ${{ steps.package-ecosystem.outputs.PACKAGE_TYPE }}
+         # The gajira-create module explicity uses json in the YAML configuration
+        fields: |
+          {
+              "customfield_10700": {
+                  "value": "${{ env.JIRA_RND_TEAM }}"
+              },
+              "customfield_12980": "Dependabot",
+              "labels": [
+                  "dependabot",
+                  "dependabot_finding",
+                  "dbot_ticketer",
+                  "${{ steps.package-ecosystem.outputs.PACKAGE_TYPE }}"
+              ]
+          }
+
+    - name: Add Jira ticket URL to PR
+      run: gh pr edit "$PR_URL" --title "${{ steps.create.outputs.issue }} - ${{ steps.package-ecosystem.outputs.PACKAGE }}"
+      env:
+        PR_URL: ${{ github.event.repository.html_url }}/pull/${{ github.event.workflow_run.pull_requests[0].number }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
