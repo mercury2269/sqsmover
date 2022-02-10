@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/fatih/color"
+	"github.com/mercury2269/sqsmover/platform"
 	"github.com/tj/go-progress"
 	"github.com/tj/go/term"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -36,6 +37,8 @@ var (
 )
 
 func main() {
+	platform.EnableVirtualTerminal()
+
 	log.SetHandler(cli.Default)
 
 	fmt.Println()
