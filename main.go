@@ -242,24 +242,24 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		}
 
 		if len(sendResp.Successful) == len(messagesToCopy) {
-      if *deleteFromSource {
-        deleteMessageBatch := &sqs.DeleteMessageBatchInput{
-          Entries:  convertSuccessfulMessageToBatchRequestEntry(messagesToCopy),
-          QueueUrl: aws.String(sourceQueueUrl),
-        }
+			if *deleteFromSource {
+				deleteMessageBatch := &sqs.DeleteMessageBatchInput{
+					Entries:  convertSuccessfulMessageToBatchRequestEntry(messagesToCopy),
+					QueueUrl: aws.String(sourceQueueUrl),
+				}
 
-        deleteResp, err := svc.DeleteMessageBatch(deleteMessageBatch)
+				deleteResp, err := svc.DeleteMessageBatch(deleteMessageBatch)
 
-        if err != nil {
-          logAwsError("Failed to delete messages from source queue", err)
-          return
-        }
+				if err != nil {
+					logAwsError("Failed to delete messages from source queue", err)
+					return
+				}
 
-        if len(deleteResp.Failed) > 0 {
-          log.Error(color.New(color.FgRed).Sprintf("Error deleting messages, the following were not deleted\n %s", deleteResp.Failed))
-          return
-        }
-      }
+				if len(deleteResp.Failed) > 0 {
+					log.Error(color.New(color.FgRed).Sprintf("Error deleting messages, the following were not deleted\n %s", deleteResp.Failed))
+					return
+				}
+			}
 
 			messagesProcessed += len(messagesToCopy)
 		}
