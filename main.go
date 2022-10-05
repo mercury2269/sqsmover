@@ -73,7 +73,7 @@ func main() {
 	sess, err := session.NewSessionWithOptions(options)
 
 	if err != nil {
-		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region \r\n", *region))
+		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region %s \r\n", *region))
 		return
 	}
 
