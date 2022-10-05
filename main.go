@@ -65,6 +65,11 @@ func main() {
 	// Our default "" value uses the AWS auto generated value
 	options.Config.Endpoint = aws.String(*endpoint)
 
+	if *sourceQueue == *destinationQueue {
+		log.Error(color.New(color.FgRed).Sprintf("Source and destination queues are the same \r\n"))
+		return
+	}
+
 	sess, err := session.NewSessionWithOptions(options)
 
 	if err != nil {
@@ -214,7 +219,7 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 
 		if len(resp.Messages) == 0 || messagesProcessed == totalMessages {
 			fmt.Println()
-			log.Info(color.New(color.FgCyan).Sprintf("Done. Moved %s messages", strconv.Itoa(totalMessages)))
+			log.Info(color.New(color.FgCyan).Sprintf("Done. Moved %s messages", strconv.Itoa(messagesProcessed)))
 			return
 		}
 
