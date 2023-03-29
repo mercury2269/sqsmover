@@ -149,21 +149,13 @@ func logAwsError(message string, err error) {
 func convertToEntries(messages []*sqs.Message) []*sqs.SendMessageBatchRequestEntry {
 	result := make([]*sqs.SendMessageBatchRequestEntry, len(messages))
 	for i, message := range messages {
-		requestEntry := &sqs.SendMessageBatchRequestEntry{
-			MessageBody:       message.Body,
-			Id:                message.MessageId,
-			MessageAttributes: message.MessageAttributes,
+		result[i] = &sqs.SendMessageBatchRequestEntry{
+			MessageBody:            message.Body,
+			Id:                     message.MessageId,
+			MessageAttributes:      message.MessageAttributes,
+			MessageGroupId:         message.Attributes[sqs.MessageSystemAttributeNameMessageGroupId],
+			MessageDeduplicationId: message.Attributes[sqs.MessageSystemAttributeNameMessageDeduplicationId],
 		}
-
-		if messageGroupId, ok := message.Attributes[sqs.MessageSystemAttributeNameMessageGroupId]; ok {
-			requestEntry.MessageGroupId = messageGroupId
-		}
-
-		if messageDeduplicationId, ok := message.Attributes[sqs.MessageSystemAttributeNameMessageDeduplicationId]; ok {
-			requestEntry.MessageDeduplicationId = messageDeduplicationId
-		}
-
-		result[i] = requestEntry
 	}
 
 	return result
